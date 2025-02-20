@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        #chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Chat App</h1>
+    <div id="chat-box"></div>
+    <input type="text" id="user-input" placeholder="メッセージを入力">
+    <button onclick="sendMessage()">送信</button>
+
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (!userInput) return;
+
+            // ユーザーのメッセージをチャットボックスに表示
+            const chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<p><strong>あなた:</strong> ${userInput}</p>`;
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: userInput })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    chatBox.innerHTML += `<p><strong>AI:</strong> ${data.response}</p>`;
+                } else {
+                    chatBox.innerHTML += `<p><strong>エラー:</strong> ${data.error}</p>`;
+                }
+            } catch (error) {
+                chatBox.innerHTML += `<p><strong>通信エラー:</strong> ${error.message}</p>`;
+            }
+
+            // 入力欄をクリア
+            document.getElementById("user-input").value = "";
+        }
+    </script>
+</body>
+
+</html>
